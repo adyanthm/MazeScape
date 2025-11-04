@@ -2,8 +2,13 @@
 
 export const dynamic = "force-dynamic"
 
-import * as Phaser from "phaser"
 import { useEffect, useRef, useState } from "react"
+
+// Dynamically import Phaser only on client-side
+let Phaser: any = null
+if (typeof window !== "undefined") {
+  Phaser = require("phaser")
+}
 
 const MAZE_MAP = [
   "##########",
@@ -66,7 +71,12 @@ const GameComponent = () => {
   }, [])
 
   useEffect(() => {
-    if (!gameStarted || gameRef.current) return
+    if (!gameStarted || gameRef.current || typeof window === "undefined") return
+    
+    // Ensure Phaser is loaded
+    if (!Phaser) {
+      Phaser = require("phaser")
+    }
 
     const gameWidth = typeof window !== "undefined" ? window.innerWidth : 1024
     const gameHeight = typeof window !== "undefined" ? window.innerHeight : 768
