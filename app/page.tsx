@@ -1,7 +1,7 @@
 "use client"
 
+import * as Phaser from "phaser"
 import { useEffect, useRef, useState } from "react"
-import Phaser from "phaser"
 
 const MAZE_MAP = [
   "##########",
