@@ -59,11 +59,14 @@ const GameComponent = () => {
     const MAZE_HEIGHT = mazeDimensions.height * TILE_SIZE
     const OFFSET_Y = 80
 
+    const gameWidth = typeof window !== "undefined" ? window.innerWidth : 1024
+    const gameHeight = typeof window !== "undefined" ? window.innerHeight : 768
+
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       parent: "game-container",
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: gameWidth,
+      height: gameHeight,
       backgroundColor: "#0a0e27",
       physics: {
         default: "arcade",
