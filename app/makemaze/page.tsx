@@ -130,7 +130,7 @@ const MazeBuilder = () => {
   const getTileColor = (tile: string) => {
     switch (tile) {
       case TILE_TYPES.WALL:
-        return "#8b6914"
+        return "#000000"
       case TILE_TYPES.GOLD:
         return "#ffd700"
       case TILE_TYPES.DOCK:
@@ -141,16 +141,7 @@ const MazeBuilder = () => {
   }
 
   const getTileBorder = (tile: string) => {
-    switch (tile) {
-      case TILE_TYPES.WALL:
-        return "2px solid #5c4509"
-      case TILE_TYPES.GOLD:
-        return "2px solid #ffed4e"
-      case TILE_TYPES.DOCK:
-        return "2px solid #00cc66"
-      default:
-        return "1px solid #e6d5a0"
-    }
+    return "none"
   }
 
   return (
@@ -241,10 +232,11 @@ const MazeBuilder = () => {
       {/* Maze Grid - Scrollable Center */}
       <div className="flex-1 overflow-auto flex items-start justify-center px-8 py-8">
         <div
-          className="grid gap-0 bg-black/30 p-2 rounded"
+          className="grid gap-0 bg-cream p-1 border-4 border-black"
           style={{
             gridTemplateColumns: `repeat(${width}, 1fr)`,
-            gap: "2px",
+            gap: "0px",
+            backgroundColor: "#f5deb3",
           }}
         >
           {maze.map((row, rowIdx) =>
@@ -252,13 +244,14 @@ const MazeBuilder = () => {
               <button
                 key={`${rowIdx}-${colIdx}`}
                 onClick={() => toggleTile(rowIdx, colIdx)}
-                className="rounded transition-all hover:opacity-80"
+                className="transition-all hover:opacity-80"
                 style={{
                   width: `${tileSize}px`,
                   height: `${tileSize}px`,
                   backgroundColor: getTileColor(tile),
                   border: getTileBorder(tile),
                   cursor: "pointer",
+                  borderRadius: "0px",
                 }}
                 title={`${tile}`}
               />
