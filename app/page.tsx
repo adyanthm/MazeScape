@@ -16,18 +16,6 @@ const MAZE_MAP = [
   "##########",
 ]
 
-const getGameMaze = () => {
-  const customMaze = localStorage.getItem("custom_maze")
-  if (customMaze) {
-    try {
-      return JSON.parse(customMaze)
-    } catch {
-      return MAZE_MAP
-    }
-  }
-  return MAZE_MAP
-}
-
 const GameComponent = () => {
   const gameRef = useRef<Phaser.Game | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
@@ -40,27 +28,35 @@ const GameComponent = () => {
     }
   }
 
-  const CURRENT_MAZE = getGameMaze()
-  const getMazeDimensions = () => {
+  const [currentMaze, setCurrentMaze] = useState<string[]>(MAZE_MAP)
+  const [mazeDimensions, setMazeDimensions] = useState({ width: 10, height: 10 })
+
+  useEffect(() => {
+    const customMaze = localStorage.getItem("custom_maze")
+    if (customMaze) {
+      try {
+        setCurrentMaze(JSON.parse(customMaze))
+      } catch {
+        setCurrentMaze(MAZE_MAP)
+      }
+    }
+
     const customConfig = localStorage.getItem("custom_maze_config")
     if (customConfig) {
       try {
-        return JSON.parse(customConfig)
+        setMazeDimensions(JSON.parse(customConfig))
       } catch {
-        return { width: 10, height: 10 }
+        setMazeDimensions({ width: 10, height: 10 })
       }
     }
-    return { width: 10, height: 10 }
-  }
-
-  const MAZE_DIMENSIONS = getMazeDimensions()
+  }, [])
 
   useEffect(() => {
     if (!gameStarted || gameRef.current) return
 
     const TILE_SIZE = 60
-    const MAZE_WIDTH = MAZE_DIMENSIONS.width * TILE_SIZE
-    const MAZE_HEIGHT = MAZE_DIMENSIONS.height * TILE_SIZE
+    const MAZE_WIDTH = mazeDimensions.width * TILE_SIZE
+    const MAZE_HEIGHT = mazeDimensions.height * TILE_SIZE
     const OFFSET_Y = 80
 
     const config: Phaser.Types.Core.GameConfig = {
@@ -113,9 +109,9 @@ const GameComponent = () => {
 
       gameState.walls = this.physics.add.staticGroup()
 
-      for (let y = 0; y < CURRENT_MAZE.length; y++) {
-        for (let x = 0; x < CURRENT_MAZE[y].length; x++) {
-          const tile = CURRENT_MAZE[y][x]
+      for (let y = 0; y < currentMaze.length; y++) {
+        for (let x = 0; x < currentMaze[y].length; x++) {
+          const tile = currentMaze[y][x]
           const posX = x * TILE_SIZE
           const posY = y * TILE_SIZE + OFFSET_Y
 
@@ -128,9 +124,9 @@ const GameComponent = () => {
         }
       }
 
-      for (let y = 0; y < CURRENT_MAZE.length; y++) {
-        for (let x = 0; x < CURRENT_MAZE[y].length; x++) {
-          const tile = CURRENT_MAZE[y][x]
+      for (let y = 0; y < currentMaze.length; y++) {
+        for (let x = 0; x < currentMaze[y].length; x++) {
+          const tile = currentMaze[y][x]
           const posX = x * TILE_SIZE + TILE_SIZE / 2
           const posY = y * TILE_SIZE + TILE_SIZE / 2 + OFFSET_Y
 
@@ -244,7 +240,7 @@ const GameComponent = () => {
       game.destroy(true)
       gameRef.current = null
     }
-  }, [gameStarted, playerName, MAZE_DIMENSIONS])
+  }, [gameStarted, playerName, currentMaze, mazeDimensions])
 
   return (
     <div className="w-full h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
