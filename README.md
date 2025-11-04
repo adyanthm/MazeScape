@@ -1,4 +1,4 @@
-# RoboQuest Gold Collector
+# MazeScape Gold Collector
 
 *Automatically synced with your [v0.app](https://v0.app) deployments*
 

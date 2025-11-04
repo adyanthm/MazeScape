@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Updated theme for sci-fi RoboQuest game */
+/* Updated theme for sci-fi MazeScape game */
 :root {
   --background: oklch(0.08 0 0);
   --foreground: oklch(0.95 0 0);

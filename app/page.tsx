@@ -7,14 +7,14 @@ import { useEffect, useRef, useState } from "react"
 
 const MAZE_MAP = [
   "##########",
-  "#D....#.G#",
+  "#D...G#.G#",
   "####.###.#",
-  "#..#.....#",
-  "#.####...#",
-  "#........#",
-  "#.##.....#",
-  "#G#....###",
-  "#...#G..D#",
+  "#.G#.....#",
+  "#.####..G#",
+  "#......###",
+  "#.##..G..#",
+  "#G#...####",
+  "#..G#G..D#",
   "##########",
 ]
 
@@ -88,7 +88,7 @@ const GameComponent = () => {
       parent: "game-container",
       width: gameWidth,
       height: gameHeight,
-      backgroundColor: "#0a0e27",
+      transparent: true,
       physics: {
         default: "arcade",
         arcade: {
@@ -121,6 +121,10 @@ const GameComponent = () => {
       playerName: playerName,
       score: 0,
       bonusPoints: 0,
+      monster: null as any,
+      monsterSpawned: false,
+      startDockPos: { x: 0, y: 0 },
+      mazeGrid: [] as number[][],
     }
 
     function initScene(this: Phaser.Scene) {
@@ -129,7 +133,13 @@ const GameComponent = () => {
       this.physics.world.setBounds(offsetX, offsetY, MAZE_WIDTH, MAZE_HEIGHT)
     }
 
-    function preloadScene(this: Phaser.Scene) {}
+    function preloadScene(this: Phaser.Scene) {
+      // Load textures
+      this.load.image('brick', '/brick.avif')
+      this.load.image('coin', '/coin.png')
+      this.load.image('jerry', '/jerry.png')
+      this.load.image('tom', '/tom.png')
+    }
 
     function createScene(this: Phaser.Scene) {
       const graphics = this.add.graphics()
@@ -143,22 +153,23 @@ const GameComponent = () => {
 
       // Draw cream background with black border around entire maze
       graphics.fillStyle(0xf5deb3, 1)
-      graphics.fillRect(offsetX - 4, offsetY - 4, MAZE_WIDTH + 8, MAZE_HEIGHT + 8)
-      graphics.lineStyle(4, 0x000000, 1)
-      graphics.strokeRect(offsetX - 4, offsetY - 4, MAZE_WIDTH + 8, MAZE_HEIGHT + 8)
+      graphics.fillRect(offsetX - 6, offsetY - 6, MAZE_WIDTH + 12, MAZE_HEIGHT + 12)
+      graphics.lineStyle(3, 0x000000, 1)
+      graphics.strokeRect(offsetX - 6, offsetY - 6, MAZE_WIDTH + 12, MAZE_HEIGHT + 12)
 
-      // Draw all tiles - cream for floors, black for walls
+      // Create maze grid for pathfinding (0 = walkable, 1 = wall)
+      gameState.mazeGrid = currentMaze.map(row => 
+        row.split('').map(tile => tile === '#' ? 1 : 0)
+      )
+
+      // Draw all tiles - cream for floors, brick texture for walls
       for (let y = 0; y < currentMaze.length; y++) {
         for (let x = 0; x < currentMaze[y].length; x++) {
           const tile = currentMaze[y][x]
           const posX = x * TILE_SIZE + offsetX
           const posY = y * TILE_SIZE + offsetY
 
-          if (tile === "#") {
-            // Draw black wall tiles
-            graphics.fillStyle(0x000000, 1)
-            graphics.fillRect(posX, posY, TILE_SIZE, TILE_SIZE)
-          } else {
+          if (tile !== "#") {
             // Draw cream floor tiles
             graphics.fillStyle(0xf5deb3, 1)
             graphics.fillRect(posX, posY, TILE_SIZE, TILE_SIZE)
@@ -176,12 +187,16 @@ const GameComponent = () => {
           const posY = y * TILE_SIZE + TILE_SIZE / 2 + offsetY
 
           if (tile === "#") {
-            const wall = this.add.rectangle(posX, posY, TILE_SIZE, TILE_SIZE, 0x000000)
-            wall.setStrokeStyle(0)
+            // Create brick textured wall
+            const wall = this.add.image(posX, posY, 'brick')
+            wall.setDisplaySize(TILE_SIZE, TILE_SIZE)
+            wall.setDepth(0)
+            this.physics.add.existing(wall, true)
             gameState.walls.add(wall)
           } else if (tile === "G") {
-            const gold = this.add.circle(posX, posY, 12, 0xffd700)
-            gold.setStrokeStyle(1, 0xffed4e)
+            // Create coin with texture (cheese) - 25% larger
+            const gold = this.add.image(posX, posY, 'coin')
+            gold.setDisplaySize(50, 50)
             gold.setDepth(1)
             gameState.gold.push({ sprite: gold, posX, posY, collected: false })
           } else if (tile === "D") {
@@ -196,21 +211,25 @@ const GameComponent = () => {
       // Create docks: top dock = finish (red), bottom dock = start (green)
       docks.forEach((dock, index) => {
         if (index === 0) {
-          // Top dock is finish dock (red)
-          gameState.finishDock = this.add.rectangle(dock.posX, dock.posY, TILE_SIZE - 8, TILE_SIZE - 8, 0xff4444)
-          gameState.finishDock.setStrokeStyle(2, 0xcc3333)
-          gameState.finishDock.setAlpha(0.7)
+          // Top dock is finish dock (purple)
+          gameState.finishDock = this.add.rectangle(dock.posX, dock.posY, TILE_SIZE - 8, TILE_SIZE - 8, 0x8b5cf6)
+          gameState.finishDock.setStrokeStyle(2, 0x7c3aed)
+          gameState.finishDock.setAlpha(0.8)
           gameState.finishDock.setDepth(1)
         } else if (index === docks.length - 1) {
-          // Bottom dock is start dock (green)
-          gameState.startDock = this.add.rectangle(dock.posX, dock.posY, TILE_SIZE - 8, TILE_SIZE - 8, 0x00ff88)
-          gameState.startDock.setStrokeStyle(2, 0x00cc66)
-          gameState.startDock.setAlpha(0.7)
+          // Bottom dock is start dock (light purple)
+          gameState.startDock = this.add.rectangle(dock.posX, dock.posY, TILE_SIZE - 8, TILE_SIZE - 8, 0xc4b5fd)
+          gameState.startDock.setStrokeStyle(2, 0xa78bfa)
+          gameState.startDock.setAlpha(0.8)
           gameState.startDock.setDepth(1)
           
-          // Spawn player at start dock (bottom)
-          gameState.player = this.add.rectangle(dock.posX, dock.posY, 32, 32, 0x0066ff)
-          gameState.player.setStrokeStyle(2, 0x00d4ff)
+          // Store start dock position for monster spawn
+          gameState.startDockPos = { x: dock.posX, y: dock.posY }
+          
+          // Spawn player at start dock (bottom) - Jerry
+          gameState.player = this.add.image(dock.posX, dock.posY, 'jerry')
+          gameState.player.setDisplaySize(40, 40)
+          gameState.player.setDepth(2)
           this.physics.add.existing(gameState.player, false)
           gameState.player.body.setCollideWorldBounds(true)
           gameState.player.body.setBounce(0)
@@ -239,6 +258,21 @@ const GameComponent = () => {
 
       gameState.gameTime += this.game.loop.delta / 1000
 
+      // Spawn monster after 5 seconds - Tom chasing Jerry!
+      if (gameState.gameTime >= 5 && !gameState.monsterSpawned) {
+        gameState.monsterSpawned = true
+        gameState.monster = this.add.image(
+          gameState.startDockPos.x, 
+          gameState.startDockPos.y, 
+          'tom'
+        )
+        gameState.monster.setDisplaySize(45, 45)
+        gameState.monster.setDepth(2)
+        this.physics.add.existing(gameState.monster, false)
+        gameState.monster.body.setCollideWorldBounds(true)
+        this.physics.add.collider(gameState.monster, gameState.walls)
+      }
+
       const speed = 150
       const keys = this.input.keyboard?.keys
       let velocityX = 0
@@ -250,6 +284,54 @@ const GameComponent = () => {
       if (keys?.[68]?.isDown || gameState.cursors?.right.isDown) velocityX = speed
 
       gameState.player.body.setVelocity(velocityX, velocityY)
+
+      // Monster AI - chase player using simple pathfinding
+      if (gameState.monster) {
+        const monsterSpeed = 100
+        const dx = gameState.player.x - gameState.monster.x
+        const dy = gameState.player.y - gameState.monster.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        
+        if (distance > 0) {
+          const monsterVelX = (dx / distance) * monsterSpeed
+          const monsterVelY = (dy / distance) * monsterSpeed
+          gameState.monster.body.setVelocity(monsterVelX, monsterVelY)
+        }
+
+        // Check if monster caught player
+        if (distance < 30) {
+          gameState.gameOver = true
+          gameState.score = gameState.bonusPoints // Only coins collected
+
+          const leaderboard = JSON.parse(localStorage.getItem("MazeScape_leaderboard") || "[]")
+          leaderboard.push({
+            name: gameState.playerName,
+            time: Math.round(gameState.gameTime * 100) / 100,
+            score: gameState.score,
+            coinsCollected: gameState.goldCollected,
+            timestamp: Date.now(),
+            caughtByMonster: true,
+          })
+          leaderboard.sort((a: any, b: any) => b.score - a.score)
+          localStorage.setItem("MazeScape_leaderboard", JSON.stringify(leaderboard.slice(0, 50)))
+
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(
+              new CustomEvent("gameComplete", {
+                detail: {
+                  playerName: gameState.playerName,
+                  time: Math.round(gameState.gameTime * 100) / 100,
+                  score: gameState.score,
+                  coinsCollected: gameState.goldCollected,
+                  bonusPoints: gameState.bonusPoints,
+                  caughtByMonster: true,
+                },
+              }),
+            )
+          }
+          return
+        }
+      }
 
       // Check for gold collection
       gameState.gold.forEach((gold: any) => {
@@ -285,7 +367,7 @@ const GameComponent = () => {
         // Calculate final score: 100 base + 10 per coin - time in seconds
         gameState.score = 100 + gameState.bonusPoints - Math.round(gameState.gameTime)
 
-        const leaderboard = JSON.parse(localStorage.getItem("roboquest_leaderboard") || "[]")
+        const leaderboard = JSON.parse(localStorage.getItem("MazeScape_leaderboard") || "[]")
         leaderboard.push({
           name: gameState.playerName,
           time: Math.round(gameState.gameTime * 100) / 100,
@@ -294,7 +376,7 @@ const GameComponent = () => {
           timestamp: Date.now(),
         })
         leaderboard.sort((a: any, b: any) => b.score - a.score) // Sort by score (highest first)
-        localStorage.setItem("roboquest_leaderboard", JSON.stringify(leaderboard.slice(0, 50)))
+        localStorage.setItem("MazeScape_leaderboard", JSON.stringify(leaderboard.slice(0, 50)))
 
         if (typeof window !== "undefined") {
           window.dispatchEvent(
@@ -322,7 +404,10 @@ const GameComponent = () => {
   }, [gameStarted, playerName, currentMaze, mazeDimensions])
 
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
+    <div 
+      className="w-full h-screen flex flex-col bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/background.jpg')" }}
+    >
       {!gameStarted ? (
         <div className="w-full h-screen flex items-center justify-center">
           <StartScreen onStart={startGame} />
@@ -341,38 +426,38 @@ function StartScreen({ onStart }: { onStart: (name: string) => void }) {
   const [name, setName] = useState("")
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 p-8 bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl border border-cyan-500/30 shadow-2xl max-w-md">
+    <div className="flex flex-col items-center justify-center gap-6 p-10 bg-white/95 backdrop-blur-sm rounded-xl border-2 border-black shadow-2xl max-w-md">
       <div className="text-center">
-        <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">
-          RoboQuest
+        <h1 className="text-6xl font-black text-black mb-2 tracking-tight">
+          MazeScape
         </h1>
-        <p className="text-slate-300 text-sm tracking-widest">GOLD COLLECTOR</p>
+        <p className="text-purple-600 text-base font-bold tracking-widest">GOLD COLLECTOR</p>
       </div>
 
-      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center border-2 border-cyan-300">
-        <div className="w-12 h-12 bg-slate-800 rounded-full" />
+      <div className="w-20 h-20 rounded-full bg-purple-600 flex items-center justify-center border-4 border-black shadow-lg">
+        <div className="w-12 h-12 bg-white rounded-full" />
       </div>
 
       <div className="space-y-4 w-full">
-        <p className="text-slate-300 text-center text-sm">Enter your name to start</p>
+        <p className="text-black text-center font-semibold">Enter your name to start</p>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Your Name"
-          className="w-full px-4 py-3 bg-slate-700/50 border border-cyan-500/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+          className="w-full px-4 py-3 bg-white border-2 border-black rounded-lg text-black placeholder-gray-400 focus:outline-none focus:border-purple-600 font-medium"
           onKeyPress={(e) => e.key === "Enter" && onStart(name)}
         />
         <button
           onClick={() => onStart(name)}
-          className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50"
+          className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg rounded-lg transition-all border-2 border-black shadow-lg"
         >
           START GAME
         </button>
       </div>
 
-      <div className="text-xs text-slate-400 text-center space-y-1">
-        <p>Start at bottom dock, reach the top red dock to finish</p>
+      <div className="text-xs text-gray-700 text-center space-y-1 font-medium">
+        <p className="text-purple-600 font-bold">Start at bottom, reach the top purple dock to finish</p>
         <p>Score: 100 base + 10 per coin - time in seconds</p>
         <p>Use WASD or Arrow Keys to move</p>
       </div>
@@ -386,6 +471,7 @@ function GameUI({ playerName, onResetGame }: { playerName: string; onResetGame: 
   const [finalScore, setFinalScore] = useState(0)
   const [coinsCollected, setCoinsCollected] = useState(0)
   const [bonusPoints, setBonusPoints] = useState(0)
+  const [caughtByMonster, setCaughtByMonster] = useState(false)
   const [leaderboard, setLeaderboard] = useState<any[]>([])
   const [elapsedTime, setElapsedTime] = useState(0)
   const [currentScore, setCurrentScore] = useState(0)
@@ -398,8 +484,9 @@ function GameUI({ playerName, onResetGame }: { playerName: string; onResetGame: 
       setFinalScore(e.detail.score)
       setCoinsCollected(e.detail.coinsCollected)
       setBonusPoints(e.detail.bonusPoints)
+      setCaughtByMonster(e.detail.caughtByMonster || false)
       setGameComplete(true)
-      setLeaderboard(JSON.parse(localStorage.getItem("roboquest_leaderboard") || "[]"))
+      setLeaderboard(JSON.parse(localStorage.getItem("MazeScape_leaderboard") || "[]"))
       if (timeIntervalRef.current) clearInterval(timeIntervalRef.current)
     }
 
@@ -428,36 +515,46 @@ function GameUI({ playerName, onResetGame }: { playerName: string; onResetGame: 
 
   if (gameComplete) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl border border-cyan-500/30 p-8 max-w-md shadow-2xl text-center space-y-6">
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-green-400">
-            MISSION COMPLETE
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50">
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl border-4 border-black p-8 max-w-md shadow-2xl text-center space-y-6">
+          <h2 className={`text-4xl font-black ${caughtByMonster ? 'text-red-600' : 'text-black'}`}>
+            {caughtByMonster ? 'CAUGHT BY MONSTER!' : 'MISSION COMPLETE'}
           </h2>
 
-          <div className="space-y-2">
-            <p className="text-slate-300">Final Score</p>
-            <p className="text-4xl font-bold text-cyan-400">{finalScore}</p>
-            <div className="text-sm text-slate-400 space-y-1">
-              <p>Time: {finalTime.toFixed(2)}s (-{Math.round(finalTime)} pts)</p>
-              <p>Coins: {coinsCollected} (+{bonusPoints} pts)</p>
-              <p>Base: 100 pts</p>
+          <div className="space-y-3">
+            <p className="text-gray-700 font-bold text-lg">Final Score</p>
+            <p className={`text-6xl font-black ${caughtByMonster ? 'text-red-600' : 'text-purple-600'}`}>{finalScore}</p>
+            <div className="text-sm text-gray-700 space-y-1 font-medium">
+              {caughtByMonster ? (
+                <>
+                  <p className="text-red-600 font-bold">Monster caught you!</p>
+                  <p>Coins: {coinsCollected} (+{bonusPoints} pts)</p>
+                  <p>Time survived: {finalTime.toFixed(2)}s</p>
+                </>
+              ) : (
+                <>
+                  <p>Time: {finalTime.toFixed(2)}s (-{Math.round(finalTime)} pts)</p>
+                  <p>Coins: {coinsCollected} (+{bonusPoints} pts)</p>
+                  <p>Base: 100 pts</p>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="bg-slate-700/50 rounded-lg p-4 space-y-3">
-            <h3 className="text-cyan-400 font-bold text-sm tracking-widest">TOP 5 SCORES</h3>
+          <div className="bg-white rounded-lg p-4 space-y-3 border-2 border-black">
+            <h3 className="text-black font-black text-base tracking-widest">TOP 5 SCORES</h3>
             <div className="space-y-2 text-sm">
               {leaderboard.slice(0, 5).map((entry: any, idx: number) => (
                 <div
                   key={idx}
-                  className={`flex justify-between px-3 py-2 rounded ${
-                    entry.name === playerName && entry.timestamp === leaderboard.find(e => e.name === playerName)?.timestamp ? "bg-cyan-500/20 border border-cyan-500/50" : "bg-slate-600/30"
+                  className={`flex justify-between px-3 py-2 rounded font-bold ${
+                    entry.name === playerName && entry.timestamp === leaderboard.find(e => e.name === playerName)?.timestamp ? "bg-purple-600 text-white border-2 border-black" : "bg-gray-100 text-black border border-gray-300"
                   }`}
                 >
-                  <span className="text-slate-300">
+                  <span>
                     #{idx + 1} {entry.name}
                   </span>
-                  <span className="text-cyan-300 font-mono">{entry.score || 0}</span>
+                  <span className="font-mono">{entry.score || 0}</span>
                 </div>
               ))}
             </div>
@@ -465,7 +562,7 @@ function GameUI({ playerName, onResetGame }: { playerName: string; onResetGame: 
 
           <button
             onClick={onResetGame}
-            className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50"
+            className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg rounded-lg transition-all border-2 border-black shadow-lg"
           >
             PLAY AGAIN
           </button>
@@ -475,26 +572,26 @@ function GameUI({ playerName, onResetGame }: { playerName: string; onResetGame: 
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center bg-gradient-to-b from-slate-900/80 to-transparent backdrop-blur-sm">
-      <div className="text-white space-y-1">
-        <p className="text-xs text-slate-400 tracking-widest">PLAYER</p>
-        <p className="font-bold text-lg text-cyan-400">{playerName}</p>
+    <div className="fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center">
+      <div className="space-y-1 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-black shadow-lg">
+        <p className="text-xs text-gray-600 tracking-widest font-bold">PLAYER</p>
+        <p className="font-black text-xl text-black">{playerName}</p>
       </div>
 
-      <div className="flex gap-6">
-        <div className="text-center space-y-1">
-          <p className="text-xs text-slate-400 tracking-widest">COINS</p>
-          <p className="font-mono text-lg text-yellow-400">{currentCoins}</p>
+      <div className="flex gap-4">
+        <div className="text-center space-y-1 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-black shadow-lg">
+          <p className="text-xs text-gray-600 tracking-widest font-bold">COINS</p>
+          <p className="font-black text-2xl text-purple-600">{currentCoins}</p>
         </div>
         
-        <div className="text-center space-y-1">
-          <p className="text-xs text-slate-400 tracking-widest">SCORE</p>
-          <p className="font-mono text-lg text-green-400">{currentScore}</p>
+        <div className="text-center space-y-1 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-black shadow-lg">
+          <p className="text-xs text-gray-600 tracking-widest font-bold">SCORE</p>
+          <p className="font-black text-2xl text-purple-600">{currentScore}</p>
         </div>
 
-        <div className="text-right space-y-1">
-          <p className="text-xs text-slate-400 tracking-widest">TIME</p>
-          <p className="font-mono text-lg text-cyan-400">{elapsedTime.toFixed(2)}s</p>
+        <div className="text-right space-y-1 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-black shadow-lg">
+          <p className="text-xs text-gray-600 tracking-widest font-bold">TIME</p>
+          <p className="font-mono font-bold text-xl text-black">{elapsedTime.toFixed(2)}s</p>
         </div>
       </div>
     </div>
