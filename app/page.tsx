@@ -222,14 +222,16 @@ const GameComponent = () => {
         leaderboard.sort((a: any, b: any) => a.time - b.time)
         localStorage.setItem("roboquest_leaderboard", JSON.stringify(leaderboard.slice(0, 50)))
 
-        window.dispatchEvent(
-          new CustomEvent("gameComplete", {
-            detail: {
-              playerName: gameState.playerName,
-              time: gameState.score,
-            },
-          }),
-        )
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("gameComplete", {
+              detail: {
+                playerName: gameState.playerName,
+                time: gameState.score,
+              },
+            }),
+          )
+        }
       }
     }
 
@@ -360,7 +362,11 @@ function GameUI({ playerName }: { playerName: string }) {
           </div>
 
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.location.reload()
+              }
+            }}
             className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50"
           >
             PLAY AGAIN
