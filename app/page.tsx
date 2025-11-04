@@ -1,5 +1,7 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
 import * as Phaser from "phaser"
 import { useEffect, useRef, useState } from "react"
 
