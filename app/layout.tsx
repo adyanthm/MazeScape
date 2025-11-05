@@ -8,9 +8,15 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "MazeScape - Tom & Jerry Maze Chase Game",
+  description: "An exciting browser-based maze game where Jerry must collect cheese while escaping from Tom! Navigate through brick-walled mazes, race against time, and compete for the top score.",
+  keywords: ["maze game", "tom and jerry", "browser game", "chase game", "puzzle game", "phaser game", "next.js game"],
+  authors: [{ name: "MazeScape Team" }],
+  openGraph: {
+    title: "MazeScape - Tom & Jerry Maze Chase Game",
+    description: "Navigate mazes, collect cheese, and escape from Tom in this thrilling browser game!",
+    type: "website",
+  },
 }
 
 export default function RootLayout({
