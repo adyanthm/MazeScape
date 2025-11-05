@@ -1,4 +1,4 @@
-# 🐭 MazeScape: Tom & Jerry Maze Chase 🧀
+# 🐭 RoboQuest: Tom & Jerry Maze Chase 🧀
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 ## 🎮 About
 
-**MazeScape** is an exciting browser-based maze game featuring the iconic Tom & Jerry duo! Navigate through brick-walled mazes, collect delicious cheese, and race against time before Tom catches you. Built with modern web technologies for a smooth, responsive gaming experience.
+**RoboQuest** is an exciting browser-based maze game featuring the iconic Tom & Jerry duo! Navigate through brick-walled mazes, collect delicious cheese, and race against time before Tom catches you. Built with modern web technologies for a smooth, responsive gaming experience.
 
 ### 🌟 Why This Game Rocks
 
@@ -68,10 +68,10 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mazescape.git
+git clone https://github.com/yourusername/roboquest.git
 
 # Navigate to project directory
-cd mazescape
+cd roboquest
 
 # Install dependencies
 npm install
@@ -131,7 +131,7 @@ Compete for the top spot with friends
 ## 🏗️ Project Structure
 
 ```
-mazescape/
+roboquest/
 ├── app/
 │   ├── page.tsx           # Main game component
 │   ├── makemaze/
@@ -223,8 +223,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 Have questions or suggestions? Feel free to:
-- 🐛 [Open an issue](https://github.com/yourusername/mazescape/issues)
-- 💬 [Start a discussion](https://github.com/yourusername/mazescape/discussions)
+- 🐛 [Open an issue](https://github.com/yourusername/roboquest/issues)
+- 💬 [Start a discussion](https://github.com/yourusername/roboquest/discussions)
 - ⭐ Star this repo if you enjoyed the game!
 
 ---
@@ -233,6 +233,6 @@ Have questions or suggestions? Feel free to:
 
 **Made with ❤️ and lots of cheese 🧀**
 
-[⬆ Back to Top](#-mazescape-tom--jerry-maze-chase-)
+[⬆ Back to Top](#-roboquest-tom--jerry-maze-chase-)
 
 </div>
