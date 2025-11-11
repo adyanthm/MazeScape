@@ -59,7 +59,7 @@ Built using modern web technologies, MazeScape demonstrates how **AI consistentl
 
 ### Installation
 Clone the repository  
-git clone https://github.com/yourusername/mazescape.git  
+git clone https://github.com/adyanthm/mazescape.git  
 
 Navigate to the project folder  
 cd mazescape  
