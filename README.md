@@ -1,15 +1,15 @@
-# 🐭 RoboQuest: Tom & Jerry Maze Chase 🧀
+# 🧠 MazeScape: AI Maze Challenge 🧀
 
 <div align="center">
 
-![Game Banner](https://img.shields.io/badge/Game-Tom%20%26%20Jerry%20Chase-purple?style=for-the-badge)
+![Game Banner](https://img.shields.io/badge/Game-MazeScape-green?style=for-the-badge)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=for-the-badge&logo=next.js)
 ![Phaser](https://img.shields.io/badge/Phaser-3-blue?style=for-the-badge&logo=phaser)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 
-**A thrilling maze chase game where Jerry must collect cheese while escaping from Tom!**
+**A fast-paced AI vs. Human maze escape game — can you beat the algorithm?**
 
-[Play Now](#-quick-start) • [Features](#-features) • [Screenshots](#-screenshots) • [Contributing](#-contributing)
+[Play Now](https://maze.adyanth.in) • [Features](#-features) • [Screenshots](#-screenshots) • [Contributing](#-contributing)
 
 </div>
 
@@ -17,222 +17,111 @@
 
 ## 🎮 About
 
-**RoboQuest** is an exciting browser-based maze game featuring the iconic Tom & Jerry duo! Navigate through brick-walled mazes, collect delicious cheese, and race against time before Tom catches you. Built with modern web technologies for a smooth, responsive gaming experience.
+**MazeScape** is an open-source browser-based maze escape challenge where both AI and humans compete.  
+The AI finds the **optimal escape path**, and on the `/record` page, a **human performs the same movements** — replicating the AI’s path to test human precision, reaction time, and efficiency.
 
-### 🌟 Why This Game Rocks
+Built using modern web technologies, MazeScape demonstrates how **AI consistently outperforms humans** in decision-making and execution speed, proving how automation can be both **cost-effective** and **highly scalable**.
 
-- 🐱 **Classic Chase**: Experience the timeless Tom & Jerry dynamic in a maze setting
-- 🧀 **Strategic Gameplay**: Balance speed vs. cheese collection for maximum score
-- ⏱️ **Time Pressure**: Tom spawns after 5 seconds - can you escape in time?
-- 🎨 **Beautiful Design**: Clean white & purple UI with custom textures
-- 🏆 **Competitive**: Real-time leaderboard to compete with friends
-- 🎯 **Custom Mazes**: Built-in maze builder to create your own challenges
+### 🌟 Highlights
+
+- 🤖 **AI Pathfinding**: The AI calculates the most efficient path through the maze.
+- 🧍‍♂️ **Human Replay System**: Humans manually execute AI-found paths on `/record`.
+- 🕒 **Time-Based Scoring**: Every second you take reduces your total score.
+- 🧀 **Dynamic Mazes**: Collect cheese for bonus points in procedurally generated maps.
+- 🏆 **Leaderboard**: Compare human and AI scores to see who escapes better.
+- 🔍 **AI Review Mode**: Watch how perfectly the AI completed the maze.
 
 ---
 
 ## ✨ Features
 
 ### 🎯 Core Gameplay
-- **Dynamic Maze System**: Navigate through brick-textured walls in a cream-colored maze
-- **Smart AI**: Tom uses pathfinding to chase Jerry through the maze
-- **Scoring System**: `100 base points + (10 × coins) - time in seconds`
-- **Two Win Conditions**: 
-  - Reach the finish dock for full score
-  - Get caught by Tom and keep only coin points
+- **Adaptive AI** – Tom (AI) uses optimized pathfinding algorithms to chase or escape.  
+- **Scoring System** –  
+  Final Score = 100 (base) + (Cheese × 10) - Time (seconds)  
+- **Lose Condition** – If Tom catches you before reaching the exit, your score becomes:  
+  Cheese Collected - Time Taken
 
-### 🛠️ Technical Features
-- **Next.js 16** with App Router
-- **Phaser 3** game engine for smooth 60 FPS gameplay
-- **TypeScript** for type-safe code
-- **Responsive Design**: Adapts to any screen size
-- **Local Leaderboard**: Persistent score tracking
-- **Custom Maze Builder**: Create and save your own mazes
-
-### 🎨 Visual Design
-- Clean **black, white & purple** color scheme
-- Custom **brick wall textures**
-- **Tom & Jerry character sprites**
-- **Cheese coin graphics**
-- Beautiful **background imagery**
-- Smooth **animations** and transitions
+### 🛠️ Technical Stack
+- **Next.js 16** – Modern React framework with App Router  
+- **Phaser 3** – Game engine for real-time maze rendering and physics  
+- **TypeScript** – Strong typing and predictable behavior  
+- **Tailwind CSS** – Clean and responsive design  
+- **Local Storage** – Persistent leaderboard and user data  
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+  
 - npm, yarn, or pnpm
 
 ### Installation
+Clone the repository  
+git clone https://github.com/yourusername/mazescape.git  
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/roboquest.git
+Navigate to the project folder  
+cd mazescape  
 
-# Navigate to project directory
-cd roboquest
+Install dependencies  
+npm install  
 
-# Install dependencies
-npm install
-# or
-yarn install
-# or
-pnpm install
+Run the development server  
+npm run dev  
 
-# Run development server
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser and start playing!
+Then open http://localhost:3000 in your browser.
 
 ---
 
 ## 🎮 How to Play
 
 ### Controls
-- **WASD** or **Arrow Keys**: Move Jerry
-- **Mouse**: Navigate menus
+- **WASD / Arrow Keys**: Move the player  
+- **Mouse**: Navigate menus  
 
 ### Objective
-1. **Start at the bottom dock** (light purple)
-2. **Collect cheese** scattered throughout the maze (+10 points each)
-3. **Reach the top dock** (dark purple) before Tom catches you!
-4. **Avoid Tom** who spawns after 5 seconds and chases you
+1. Start from the **entry dock**  
+2. **Collect cheese** scattered through the maze (+10 points each)  
+3. **Reach the exit** before Tom (AI) catches you  
+4. Every second reduces your score by 1 point  
 
-### Scoring
-```
-Final Score = 100 (base) + (Coins × 10) - Time (seconds)
-```
-
-**Example:**
-- Completed in 30 seconds with 3 coins: `100 + 30 - 30 = 100 points`
-- Caught by Tom with 2 coins: `0 + 20 = 20 points`
+### AI Comparison
+After your run, visit the `/record` page to **watch how the AI completed the same maze**.  
+You can see its path, timing, and performance versus your own.
 
 ---
 
-## 📸 Screenshots
+## 🧠 Purpose
 
-### Main Menu
-Clean, minimalistic design with bold typography
-
-### Gameplay
-Navigate through brick mazes while Tom chases you!
-
-### Leaderboard
-Compete for the top spot with friends
+MazeScape isn’t just a game — it’s a **human vs. AI performance benchmark**.  
+It showcases how AI’s optimized movement, reaction time, and decision-making give it an advantage, reinforcing the **efficiency and cost-effectiveness of intelligent automation**.
 
 ---
 
-## 🏗️ Project Structure
+## 🛠️ Open Source Philosophy
 
-```
-roboquest/
-├── app/
-│   ├── page.tsx           # Main game component
-│   ├── makemaze/
-│   │   └── page.tsx       # Maze builder
-│   ├── layout.tsx         # Root layout
-│   └── globals.css        # Global styles
-├── public/
-│   ├── jerry.png          # Player character
-│   ├── tom.png            # Monster character
-│   ├── coin.png           # Cheese collectible
-│   ├── brick.avif         # Wall texture
-│   └── background.jpg     # Background image
-└── README.md
-```
+### **Fully Open-Sourced. Fully Transparent.**
+- Every part of MazeScape — from maze generation to AI logic — is open for review.  
+- **No hidden algorithms**: All AI logic is public and inspectable.  
+- Built for **education, research, and innovation**.  
+- Hosted on **GitHub** for open collaboration and contributions.  
 
----
-
-## 🎨 Customization
-
-### Create Your Own Maze
-
-1. Navigate to `/makemaze` route
-2. Set maze dimensions (5-30 tiles)
-3. Click tiles to place:
-   - **Walls (#)**: Brick obstacles
-   - **Floor (.)**: Walkable paths
-   - **Coins (G)**: Collectibles
-   - **Docks (D)**: Start/finish points
-4. Save and play your custom maze!
-
-### Modify Game Settings
-
-Edit `app/page.tsx` to customize:
-- **Monster spawn time**: Change `gameState.gameTime >= 5`
-- **Player speed**: Adjust `speed = 150`
-- **Monster speed**: Modify `monsterSpeed = 100`
-- **Scoring formula**: Update score calculation
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-|------------|---------|
-| **Next.js 16** | React framework with App Router |
-| **Phaser 3** | 2D game engine |
-| **TypeScript** | Type-safe development |
-| **Tailwind CSS** | Utility-first styling |
-| **Local Storage** | Score persistence |
-
----
-
-## 🤝 Contributing
-
-We love contributions! Here's how you can help:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
-
-### Ideas for Contributions
-- 🎵 Add background music and sound effects
-- 🌍 Multiple maze levels with increasing difficulty
-- 👥 Multiplayer mode
-- 🏅 Achievement system
-- 📱 Mobile touch controls
-- 🎨 More character skins
-- 🧩 Power-ups and special items
+**→ Transparency builds trust.  
+→ Collaboration drives innovation.**
 
 ---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Tom & Jerry** characters inspired by the classic cartoon
-- **Phaser** community for excellent documentation
-- **Next.js** team for the amazing framework
-- All contributors who help improve this game!
-
----
-
-## 📞 Contact
-
-Have questions or suggestions? Feel free to:
-- 🐛 [Open an issue](https://github.com/yourusername/roboquest/issues)
-- 💬 [Start a discussion](https://github.com/yourusername/roboquest/discussions)
-- ⭐ Star this repo if you enjoyed the game!
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**Made with ❤️ and lots of cheese 🧀**
+**Made with ❤️, logic, and cheese 🧀**
 
-[⬆ Back to Top](#-roboquest-tom--jerry-maze-chase-)
+[⬆ Back to Top](#-mazescape-ai-maze-challenge-)
 
 </div>
